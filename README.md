@@ -9,7 +9,7 @@
 + cd msa_pair; pip install -e .
 
 ## ESMPair pipeline
-+ For saving GPU memory, you need to replace the *esm/model.py* in the directory of {your python path}/site-packages/ with the provided *model.py*. In the new *model.py*, we remove redundant operations.
++ For saving GPU memory, you need to replace the *esm/model/msa_transformer.py* in the directory of {your python path}/site-packages/ with the provided *msa_transformer.py*. In the new *msa_transformer.py*, we remove redundant operations.
 + Run the ColAttn MSA Pairing,  take the  *2p01A* in the *dataset* for example, let's build a paired MSA on heterodimers.
     + Making the subdirectory *A* and *B* in the directory of   *2p01A*;
     + Renaming the *2p01A_domain_0_start_21_end_91.a3m* with *uniref90.a3m* and moving it to the subdirectory *A*. Similarly, renaming *2p01A_domain_1_start_111_end_215.a3m* with *uniref90.a3m* and moving it to *B*;
