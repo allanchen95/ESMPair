@@ -74,7 +74,8 @@ def create_paired_rows_dict(
 
     # sort rows by their pair scores
     pair_scores = np.concatenate(pair_scores, axis=0)
-    inds_sorted = np.argsort(np.sum(pair_scores, axis=-1))[::-1]
+    # inds_sorted = np.argsort(np.sum(pair_scores, axis=-1))[::-1]
+    inds_sorted = np.argsort(np.sum(pair_scores, axis=-1))
     paired_rows_dict  = {
         chain_id: [rows[i] for i in inds_sorted] for chain_id, rows in 
         paired_rows_dict.items()
