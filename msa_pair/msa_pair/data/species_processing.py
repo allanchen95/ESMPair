@@ -123,30 +123,15 @@ def create_species_dict(msa_df: pd.DataFrame) -> Dict[bytes, pd.DataFrame]:
 
 
 def parse(
-    input_dir: str,
-    names: Sequence[str],
-    chain_ids=['A', 'B'], 
+    input_files_dict,
     pair_species=False,
 ):
-    """Parse all MSAs in the directory
-    """
-    grouped_paths = {
-        chain_id: 
-            [ os.path.join(input_dir, chain_id, name) for name in names ]
-        for chain_id in chain_ids
-    }
-    # print(grouped_paths)
-    if any(
-        not all(os.path.exists(_) for _ in paths) for paths in 
-        grouped_paths.values()
-    ):
-        raise IOError('Some files do not exist')
 
     msas_dict = {}
     msa_feats_dict = {}
     if pair_species:
         all_species_dict = defaultdict(dict)
-    for chain_id, paths in grouped_paths.items():
+    for chain_id, paths in input_files_dict.items():
         msas = []
         for path in paths:
             with open(path) as fh:
@@ -210,14 +195,10 @@ def parse_pairs(
 
 
 def pair_species(
-    input_dir: str,
-    names: Sequence[str] = ['uniprot.a3m'],
-    chain_ids=['A', 'B'],
+    input_files_dict
 ):
     all_species_dict, msas_dict, msa_feats_dict = parse(
-        input_dir,
-        names,
-        chain_ids=chain_ids,
+        input_files_dict,
         pair_species=True,
     )
 
