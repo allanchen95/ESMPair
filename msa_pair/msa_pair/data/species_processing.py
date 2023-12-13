@@ -133,11 +133,11 @@ def parse(
         all_species_dict = defaultdict(dict)
     for chain_id, paths in input_files_dict.items():
         msas = []
-        for path in paths:
-            with open(path) as fh:
-                a3m_str = fh.read()
-                msa = parsers.parse_a3m(a3m_str)
-            msas.append(msa)
+        #for path in paths:
+        with open(path) as fh:
+            a3m_str = fh.read()
+            msa = parsers.parse_a3m(a3m_str)
+        msas.append(msa)
         msa_feat, processed_msa = make_msa_features(msas)
 
         if pair_species:
