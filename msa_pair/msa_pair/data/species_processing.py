@@ -131,7 +131,7 @@ def parse(
     msa_feats_dict = {}
     if pair_species:
         all_species_dict = defaultdict(dict)
-    for chain_id, paths in input_files_dict.items():
+    for chain_id, path in input_files_dict.items():
         msas = []
         #for path in paths:
         with open(path) as fh:
