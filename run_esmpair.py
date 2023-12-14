@@ -9,7 +9,7 @@ from msa_pair.data import (
     species_processing, row_processing, pairing_pipeline,
 )
 import esm
-
+import dataclasses
 
 msa_transformer, msa_alphabet = esm.pretrained.esm_msa1b_t12_100M_UR50S()
 msa_batch_converter = msa_alphabet.get_batch_converter()
@@ -40,6 +40,17 @@ def pair_rows(input_files_dict, src_score_path, dst_pr_path, tag, overwrite=Fals
     paired_rows_dict = row_processing.create_paired_rows_dict(
         species_dict, msas_dict, sequences_scores
     )
+
+    msa_a_dict = dataclasses.asdict(msas_dict["A"])
+    msa_b_dict = dataclasses.asdict(msas_dict["B"])
+    pr_idx_a_list = paired_rows_dict["A"]
+    pr_idx_b_list = paired_rows_dict["B"]
+    for i in range(5):
+        print (msa_a_dict['description'][pr_idx_a_list[i]])
+        print (msa_a_dict['sequences'][pr_idx_a_list[i]])
+        print (msa_b_dict['description'][pr_idx_b_list[i]])
+        print (msa_b_dict['sequences'][pr_idx_b_list[i]])
+        print ("____")
     # print(paired_rows_dict)
     # print(paired_rows_dict["A"])
     # print(paired_rows_dict["A"][:10])
