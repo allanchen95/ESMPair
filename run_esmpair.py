@@ -45,16 +45,18 @@ def pair_rows(input_files_dict, src_score_path, dst_pr_path, tag, overwrite=Fals
     msa_b_dict = dataclasses.asdict(msas_dict["B"])
     pr_idx_a_list = paired_rows_dict["A"]
     pr_idx_b_list = paired_rows_dict["B"]
-    """
     for i in range(5):
         print (msa_a_dict['descriptions'][pr_idx_a_list[i]])
         print (msa_a_dict['sequences'][pr_idx_a_list[i]])
         print (msa_b_dict['descriptions'][pr_idx_b_list[i]])
         print (msa_b_dict['sequences'][pr_idx_b_list[i]])
-        print ("____", pr_idx_a_list[i], str(pr_idx_a_list[i]))
-        print (num_key_seq_scores["A"][str(pr_idx_a_list[i])])
-        print (num_key_seq_scores["B"][str(pr_idx_b_list[i])])
-    """
+        print ("____", pr_idx_a_list[i], pr_idx_b_list[i])
+        msa_a_hdr_dict = num_key_seq_scores["A"][str(pr_idx_a_list[i])]
+        msa_b_hdr_dict = num_key_seq_scores["B"][str(pr_idx_b_list[i])]
+        comb_hdr_str = msa_a_hdr_dict["description"] +f'  a_scr = {msa_a_hdr_dict["score"]:.4f} '
+        comb_hdr_str = comb_hdr_str + f'{ msa_b_hdr_dict["description"]}  b_scr = {msa_b_hdr_dict["score"]:.4f} '
+        comb_hdr_str = comb_hdr_str + msa_a_dict['descriptions'][pr_idx_a_list[i]] + '  ' + msa_b_dict['descriptions'][pr_idx_b_list[i]] 
+        print (comb_hdr_str)
     # print(paired_rows_dict)
     # print(paired_rows_dict["A"])
     # print(paired_rows_dict["A"][:10])
