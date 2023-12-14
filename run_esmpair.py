@@ -9,7 +9,7 @@ from msa_pair.data import (
     species_processing, row_processing, pairing_pipeline,
 )
 import esm
-import dataclasses
+import dataclasses, copy
 
 msa_transformer, msa_alphabet = esm.pretrained.esm_msa1b_t12_100M_UR50S()
 msa_batch_converter = msa_alphabet.get_batch_converter()
@@ -32,7 +32,7 @@ def pair_rows(input_files_dict, src_score_path, dst_pr_path, tag, overwrite=Fals
 
     with open(src_score_path) as fh:
         sequences_scores = json.load(fh)
-
+    num_key_seq_scores = copy.deepcopy(sequences_scores)
     species_dict, msas_dict, _, _ = species_processing.pair_species(
         input_files_dict
         # input_dir, names=['uniprot.a3m'], chain_ids=['A', 'B']
@@ -45,14 +45,16 @@ def pair_rows(input_files_dict, src_score_path, dst_pr_path, tag, overwrite=Fals
     msa_b_dict = dataclasses.asdict(msas_dict["B"])
     pr_idx_a_list = paired_rows_dict["A"]
     pr_idx_b_list = paired_rows_dict["B"]
+    """
     for i in range(5):
         print (msa_a_dict['descriptions'][pr_idx_a_list[i]])
         print (msa_a_dict['sequences'][pr_idx_a_list[i]])
         print (msa_b_dict['descriptions'][pr_idx_b_list[i]])
         print (msa_b_dict['sequences'][pr_idx_b_list[i]])
-        print ("____")
-        print (sequences_scores["A"][str(pr_idx_a_list[i])])
-        print (sequences_scores["B"][str(pr_idx_b_list[i])])
+        print ("____", pr_idx_a_list[i], str(pr_idx_a_list[i]))
+        print (num_key_seq_scores["A"][str(pr_idx_a_list[i])])
+        print (num_key_seq_scores["B"][str(pr_idx_b_list[i])])
+    """
     # print(paired_rows_dict)
     # print(paired_rows_dict["A"])
     # print(paired_rows_dict["A"][:10])
