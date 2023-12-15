@@ -27,7 +27,7 @@ def compute_scores(input_files_dict, out_score_file_path, tag, max_num_msas, is_
         json.dump(sequences_scores, fh, indent=4, sort_keys=True)
 
 
-def pair_rows(input_files_dict, src_score_path, dst_pr_path, tag, overwrite=False):
+def pair_rows(input_files_dict, src_score_path, dst_pr_path, tag, a3m_file, overwrite=False):
 
 
     with open(src_score_path) as fh:
@@ -45,23 +45,26 @@ def pair_rows(input_files_dict, src_score_path, dst_pr_path, tag, overwrite=Fals
     msa_b_dict = dataclasses.asdict(msas_dict["B"])
     pr_idx_a_list = paired_rows_dict["A"]
     pr_idx_b_list = paired_rows_dict["B"]
-    for i in range(5):
-        print (msa_a_dict['descriptions'][pr_idx_a_list[i]])
-        print (msa_a_dict['sequences'][pr_idx_a_list[i]])
-        print (msa_b_dict['descriptions'][pr_idx_b_list[i]])
-        print (msa_b_dict['sequences'][pr_idx_b_list[i]])
-        print ("____", pr_idx_a_list[i], pr_idx_b_list[i])
+    pr_idx_a_list.reverse()
+    pr_idx_b_list.reverse()
+   
+    fh1 = open(a3m_file, "w")
+    a_len = len(msa_a_dict['sequences'][0])
+    b_len = len(msa_b_dict['sequences'][0])
+    zero_hdr = f'> {msa_a_dict["descriptions"][0]}  a_seq_n={a_len} {msa_b_dict["descriptions"][0]}  b_seq_len={b_len}' 
+    zero_seq = msa_a_dict['sequences'][0] + msa_b_dict['sequences'][0]
+    fh1.write(zero_hdr+"\n")
+    fh1.write(zero_seq+"\n")
+    for i in range(len(pr_idx_a_list)):
         msa_a_hdr_dict = num_key_seq_scores["A"][str(pr_idx_a_list[i])]
         msa_b_hdr_dict = num_key_seq_scores["B"][str(pr_idx_b_list[i])]
-        comb_hdr_str = msa_a_hdr_dict["description"] +f'  a_scr = {msa_a_hdr_dict["score"]:.4f} '
+        comb_hdr_str = "> "+msa_a_hdr_dict["description"] +f'  a_scr = {msa_a_hdr_dict["score"]:.4f} '
         comb_hdr_str = comb_hdr_str + f'{ msa_b_hdr_dict["description"]}  b_scr = {msa_b_hdr_dict["score"]:.4f} '
         comb_hdr_str = comb_hdr_str + msa_a_dict['descriptions'][pr_idx_a_list[i]] + '  ' + msa_b_dict['descriptions'][pr_idx_b_list[i]] 
-        print (comb_hdr_str)
-    # print(paired_rows_dict)
-    # print(paired_rows_dict["A"])
-    # print(paired_rows_dict["A"][:10])
-    # print(paired_rows_dict["B"][:10])
-    # exit()
+        comb_seq = msa_a_dict['sequences'][pr_idx_a_list[i]] + msa_b_dict['sequences'][pr_idx_b_list[i]]
+        fh1.write(comb_hdr_str+"\n")
+        fh1.write(comb_seq+"\n")
+    fh1.close()
 
     with open(dst_pr_path, 'wt') as fh:
         json.dump(paired_rows_dict, fh, indent=4)
@@ -144,7 +147,7 @@ if __name__ == '__main__':
     # if we relax the option for files, we need to change this.
 
  
-        
+    a3m_fn = out_dir.joinpath("esmpair_paralog_out.a3m")   
     # calculate and save the column attention score
     score_path = out_dir.joinpath(f'{tag}_scores_{max_per_msa}.json')
     if not os.path.exists(score_path):
@@ -153,4 +156,4 @@ if __name__ == '__main__':
     # 
     pr_path = out_dir.joinpath(f'{tag}_pr_{max_per_msa}.json')
     if not os.path.exists(pr_path):
-            pair_rows(in_files_dict, score_path, pr_path, tag)
+            pair_rows(in_files_dict, score_path, pr_path, tag, a3m_fn)
