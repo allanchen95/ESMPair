@@ -9,7 +9,7 @@ from msa_pair.data import (
     species_processing, row_processing, pairing_pipeline,
 )
 import esm
-import dataclasses, copy
+import dataclasses, copy, glob
 
 msa_transformer, msa_alphabet = esm.pretrained.esm_msa1b_t12_100M_UR50S()
 msa_batch_converter = msa_alphabet.get_batch_converter()
@@ -87,6 +87,24 @@ def process(input_dir, src_pr_path, dst_path, overwrite=False):
 
     np.savez(dst_path, **np_example)
 
+def get_all_file_prefixes (in_files_list, in_dir_path):
+    unique_files_list = []
+    filtered_files_list = []
+    for file in in_files_list:
+        fn = file.split("_")[0]
+        if fn not in unique_files_list:
+            unique_files_list.append(fn)
+    
+    for file in unique_files_list:
+        f1_str = file+"_1.a3m"
+        f2_str = file+"_2.a3m"
+        fn1 = in_dir_path / f1_str
+        fn2 = in_dir_path / f2_str
+        if fn1.exists() and fn2.exists():
+            filtered_files_list.append(file)
+
+    return filtered_files_list
+
 if __name__ == '__main__':
     # python colattn_pair.py ./dataset/ 4 512 
     import logging
@@ -98,34 +116,32 @@ if __name__ == '__main__':
 
     
 
-    parser.add_argument("files", nargs="+", help="Names of the two MSA files.")
+    parser.add_argument("in_dir",  help="Name of directory containing MSA files")
     parser.add_argument("-o", "--outdir", help="Output directory for saving results.")
-    
+    parser.add_argument("-n", "--num_threads", help="For parallel processing")
+
     args = parser.parse_args()
-    in_files = args.files
+    in_dir = args.in_dir
+    in_dir_path = Path(args.in_dir)
 
-    if len(in_files) == 2:
-        file_name_a = in_files[0]
-        file_name_b = in_files[1]
-    else:
-        sys.exit("Please input the names of the two MSA files")
-
-    if (not (Path(file_name_a).is_file())) or (not (Path(file_name_a).is_file())):
-        sys.exit("MSA files do not exist.")
-
-    file_path_a = Path(file_name_a)
-    file_path_b = Path(file_name_b)     
-
-    # following for compatibility with esmpair code from the research group
-    in_files_dict = {
-        "A" : file_path_a,
-        "B" : file_path_b
-    }
-
+    
     if args.outdir is not None:
         out_dir = Path(args.outdir)
     else:
-        out_dir = Path.cwd()
+        out_dir = in_dir_path
+
+    # input file processing
+        
+    files_list = glob.glob(in_dir_path + "/*.a3m")
+
+    if not files_list:
+        sys.exit("No MSA files found in the input directory.")
+    
+    file_prefix_list = get_all_file_prefixes(files_list)
+
+    if not file_prefix_list:
+        sys.exit("Not matched MSA files found in the input directory.")
+
 
     # following are candidates for input options
     # use column attention for pairing
@@ -142,18 +158,25 @@ if __name__ == '__main__':
     os.environ['CUDA_VISIBLE_DEVICES'] = str(device_id)
     err_dirs = []
 
-    #issue - we are using outdir to store results
-    # same name. need to change this for processing multiple pairs of files
-    # if we relax the option for files, we need to change this.
+    for file_p in file_prefix_list:
+        p1, p2 = file_p+"_1.a3m", file_p+"_2.a3m"
+        p_prefix = file_p.split("/")[-1]
+        p_out = p_prefix+"_paralogs.a3m"
+        print (p1, p2, p_out)
+        a3m_fn = out_dir.joinpath(p_out)   
+        f1_path = Path(p1)
+        f2_path = Path(p2)
+        in_files_dict = {
+            "A" : f1_path,
+            "B" : f2_path
+        }
 
- 
-    a3m_fn = out_dir.joinpath("esmpair_paralog_out.a3m")   
-    # calculate and save the column attention score
-    score_path = out_dir.joinpath(f'{tag}_scores_{max_per_msa}.json')
-    if not os.path.exists(score_path):
-        compute_scores(in_files_dict, score_path, tag, int(max_per_msa))
+        # calculate and save the column attention score
+        score_path = out_dir.joinpath(f'{p_prefix}_{tag}_scores_{max_per_msa}.json')
+        if not os.path.exists(score_path):
+            compute_scores(in_files_dict, score_path, tag, int(max_per_msa))
         
-    # 
-    pr_path = out_dir.joinpath(f'{tag}_pr_{max_per_msa}.json')
-    if not os.path.exists(pr_path):
+        # 
+        pr_path = out_dir.joinpath(f'{p_prefix}_{tag}_pr_{max_per_msa}.json')
+        if not os.path.exists(pr_path):
             pair_rows(in_files_dict, score_path, pr_path, tag, a3m_fn)
