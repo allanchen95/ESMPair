@@ -169,11 +169,11 @@ if __name__ == '__main__':
         }
 
         # calculate and save the column attention score - aggregate
-        score_path = out_dir.joinpath(f'{p_prefix}_{tag}_scores_{max_per_msa}.json')
+        score_path = out_dir.joinpath(f'{file_p}_{tag}_scores_{max_per_msa}.json')
         if not os.path.exists(score_path):
             compute_scores(in_files_dict, score_path, tag, int(max_per_msa))
         
         # 
-        pr_path = out_dir.joinpath(f'{p_prefix}_{tag}_pr_{max_per_msa}.json')
+        pr_path = out_dir.joinpath(f'{file_p}_{tag}_pr_{max_per_msa}.json')
         if not os.path.exists(pr_path):
             pair_rows(in_files_dict, score_path, pr_path, tag, a3m_fn)
