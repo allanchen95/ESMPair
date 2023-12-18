@@ -168,7 +168,7 @@ if __name__ == '__main__':
             "B" : f2_path
         }
 
-        # calculate and save the column attention score
+        # calculate and save the column attention score - aggregate
         score_path = out_dir.joinpath(f'{p_prefix}_{tag}_scores_{max_per_msa}.json')
         if not os.path.exists(score_path):
             compute_scores(in_files_dict, score_path, tag, int(max_per_msa))
