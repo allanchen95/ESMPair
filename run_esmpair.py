@@ -91,7 +91,8 @@ def get_all_file_prefixes (in_files_list, in_dir_path):
     unique_files_list = []
     filtered_files_list = []
     for file in in_files_list:
-        fn = file.split("_")[0]
+        fn = file.stem
+        fn = fn.split("_")[0]
         if fn not in unique_files_list:
             unique_files_list.append(fn)
     for file in unique_files_list:
@@ -131,7 +132,7 @@ if __name__ == '__main__':
 
     # input file processing
         
-    files_list = glob.glob(in_dir + "/*.a3m")
+    files_list = Path(in_dir).glob('*.a3m')
 
     if not files_list:
         sys.exit("No MSA files found in the input directory.")
@@ -158,12 +159,10 @@ if __name__ == '__main__':
 
     for file_p in file_prefix_list:
         p1, p2 = file_p+"_1.a3m", file_p+"_2.a3m"
-        p_prefix = file_p.split("/")[-1]
-        p_out = p_prefix+"_paralogs.a3m"
-        print (p1, p2, p_out)
+        p_out = file_p+"_paralogs.a3m"
         a3m_fn = out_dir.joinpath(p_out)   
-        f1_path = Path(p1)
-        f2_path = Path(p2)
+        f1_path = in_dir.joinpath(p1)
+        f2_path = in_dir.joinpath(p2)
         in_files_dict = {
             "A" : f1_path,
             "B" : f2_path
