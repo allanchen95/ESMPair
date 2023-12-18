@@ -161,8 +161,8 @@ if __name__ == '__main__':
         p1, p2 = file_p+"_1.a3m", file_p+"_2.a3m"
         p_out = file_p+"_paralogs.a3m"
         a3m_fn = out_dir.joinpath(p_out)   
-        f1_path = in_dir.joinpath(p1)
-        f2_path = in_dir.joinpath(p2)
+        f1_path = in_dir_path.joinpath(p1)
+        f2_path = in_dir_path.joinpath(p2)
         in_files_dict = {
             "A" : f1_path,
             "B" : f2_path
