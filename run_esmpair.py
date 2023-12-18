@@ -130,6 +130,8 @@ if __name__ == '__main__':
     else:
         out_dir = in_dir_path
 
+    # create output dir if it does not exist
+    out_dir.mkdir(parents=True, exist_ok=True)
     # input file processing
         
     files_list = Path(in_dir).glob('*.a3m')
